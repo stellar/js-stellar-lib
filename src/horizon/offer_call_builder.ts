@@ -1,6 +1,7 @@
 import { Asset } from "@stellar/stellar-base";
 import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
+import { HttpClient } from "../http-client";
 
 /**
  * Creates a new {@link OfferCallBuilder} pointed to server defined by serverUrl.
@@ -17,8 +18,8 @@ import { ServerApi } from "./server_api";
 export class OfferCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.OfferRecord>
 > {
-  constructor(serverUrl: URI) {
-    super(serverUrl, "offers");
+  constructor(serverUrl: URI, client: HttpClient) {
+    super(serverUrl, client, "offers");
     this.url.segment("offers");
   }
 
@@ -30,7 +31,7 @@ export class OfferCallBuilder extends CallBuilder<
    * @returns {CallBuilder<ServerApi.OfferRecord>} CallBuilder<ServerApi.OfferRecord> OperationCallBuilder instance
    */
   public offer(offerId: string): CallBuilder<ServerApi.OfferRecord> {
-    const builder = new CallBuilder<ServerApi.OfferRecord>(this.url.clone());
+    const builder = new CallBuilder<ServerApi.OfferRecord>(this.url.clone(), this.httpClient);
     builder.filter.push([offerId]);
     return builder;
   }

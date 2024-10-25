@@ -1,3 +1,4 @@
+import { HttpClient } from "../http-client";
 import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
 
@@ -16,8 +17,8 @@ import { ServerApi } from "./server_api";
 export class OperationCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.OperationRecord>
 > {
-  constructor(serverUrl: URI) {
-    super(serverUrl, "operations");
+  constructor(serverUrl: URI, client: HttpClient) {
+    super(serverUrl, client, "operations");
     this.url.segment("operations");
   }
 
@@ -33,6 +34,7 @@ export class OperationCallBuilder extends CallBuilder<
   ): CallBuilder<ServerApi.OperationRecord> {
     const builder = new CallBuilder<ServerApi.OperationRecord>(
       this.url.clone(),
+      this.httpClient
     );
     builder.filter.push([operationId]);
     return builder;

@@ -39,9 +39,12 @@ import { TradeAggregationCallBuilder } from "./trade_aggregation_call_builder";
 import { TradesCallBuilder } from "./trades_call_builder";
 import { TransactionCallBuilder } from "./transaction_call_builder";
 // eslint-disable-next-line import/no-named-as-default
-import AxiosClient, {
+import {
+  createHttpClient,
+  DEFAULT_HEADERS,
   getCurrentServerTime,
 } from "./horizon_axios_client";
+import { HttpClient } from "../http-client";
 
 /**
  * Default transaction submission timeout for Horizon requests, in milliseconds
@@ -78,17 +81,22 @@ export class HorizonServer {
    * @todo Solve `URI(this.serverURL as any)`.
    */
   public readonly serverURL: URI;
+  private readonly httpClient: HttpClient
 
   constructor(serverURL: string, opts: HorizonServer.Options = {}) {
     this.serverURL = URI(serverURL);
+    this.httpClient = createHttpClient();
 
     const allowHttp =
       typeof opts.allowHttp === "undefined"
         ? Config.isAllowHttp()
         : opts.allowHttp;
 
-    const customHeaders: Record<string, string> = {};
+    if (this.serverURL.protocol() !== "https" && !allowHttp) {
+      throw new Error("Cannot connect to insecure horizon server");
+    }
 
+    let customHeaders: Record<string, string> = {};
     if (opts.appName) {
       customHeaders["X-App-Name"] = opts.appName;
     }
@@ -101,19 +109,19 @@ export class HorizonServer {
     if (opts.headers) {
       Object.assign(customHeaders, opts.headers);
     }
-    if (Object.keys(customHeaders).length > 0) {
-      AxiosClient.interceptors.request.use((config) => {
-        // merge the custom headers with an existing headers, where customs
-        // override defaults
-        config.headers = config.headers || {};
-        config.headers = Object.assign(config.headers, customHeaders);
 
+    if (Object.keys(customHeaders).length > 0) {
+      this.httpClient.interceptors.request.use((config) => {
+        console.log("intercepting")
+        console.log("hdrs", DEFAULT_HEADERS)
+        console.log("opts", opts.headers)
+        console.log("cfg b4", config.headers)
+        // merge any custom headers into the default headers
+        // note that this intentionally ignores config.headers
+        config.headers = Object.assign({...DEFAULT_HEADERS}, opts.headers);
+        console.log("final", config.headers)
         return config;
       });
-    }
-
-    if (this.serverURL.protocol() !== "https" && !allowHttp) {
-      throw new Error("Cannot connect to insecure horizon server");
     }
   }
 
@@ -149,7 +157,7 @@ export class HorizonServer {
     seconds: number,
     _isRetry: boolean = false,
   ): Promise<HorizonServer.Timebounds> {
-    // AxiosClient instead of this.ledgers so we can get at them headers
+    // this.httpClient instead of this.ledgers so we can get at them headers
     const currentTime = getCurrentServerTime(this.serverURL.hostname());
 
     if (currentTime) {
@@ -169,7 +177,7 @@ export class HorizonServer {
 
     // otherwise, retry (by calling the root endpoint)
     // toString automatically adds the trailing slash
-    await AxiosClient.get(URI(this.serverURL as any).toString());
+    await this.httpClient.get(URI(this.serverURL as any).toString());
     return this.fetchTimebounds(seconds, true);
   }
 
@@ -194,6 +202,7 @@ export class HorizonServer {
   public async feeStats(): Promise<HorizonApi.FeeStatsResponse> {
     const cb = new CallBuilder<HorizonApi.FeeStatsResponse>(
       URI(this.serverURL as any),
+      this.httpClient
     );
     cb.filter.push(["fee_stats"]);
     return cb.call();
@@ -316,7 +325,7 @@ export class HorizonServer {
         .toString("base64"),
     );
 
-    return AxiosClient.post(
+    return this.httpClient.post(
       URI(this.serverURL as any)
         .segment("transactions")
         .toString(),
@@ -542,7 +551,7 @@ export class HorizonServer {
             .toString("base64"),
     );
 
-    return AxiosClient.post(
+    return this.httpClient.post(
         URI(this.serverURL as any)
             .segment("transactions_async")
             .toString(),
@@ -565,28 +574,28 @@ export class HorizonServer {
    * @returns {AccountCallBuilder} New {@link AccountCallBuilder} object configured by a current Horizon server configuration.
    */
   public accounts(): AccountCallBuilder {
-    return new AccountCallBuilder(URI(this.serverURL as any));
+    return new AccountCallBuilder(URI(this.serverURL as any), this.httpClient);
   }
 
   /**
    * @returns {ClaimableBalanceCallBuilder} New {@link ClaimableBalanceCallBuilder} object configured by a current Horizon server configuration.
    */
   public claimableBalances(): ClaimableBalanceCallBuilder {
-    return new ClaimableBalanceCallBuilder(URI(this.serverURL as any));
+    return new ClaimableBalanceCallBuilder(URI(this.serverURL as any), this.httpClient);
   }
 
   /**
    * @returns {LedgerCallBuilder} New {@link LedgerCallBuilder} object configured by a current Horizon server configuration.
    */
   public ledgers(): LedgerCallBuilder {
-    return new LedgerCallBuilder(URI(this.serverURL as any));
+    return new LedgerCallBuilder(URI(this.serverURL as any), this.httpClient);
   }
 
   /**
    * @returns {TransactionCallBuilder} New {@link TransactionCallBuilder} object configured by a current Horizon server configuration.
    */
   public transactions(): TransactionCallBuilder {
-    return new TransactionCallBuilder(URI(this.serverURL as any));
+    return new TransactionCallBuilder(URI(this.serverURL as any), this.httpClient);
   }
 
   /**
@@ -604,7 +613,7 @@ export class HorizonServer {
    * @returns {OfferCallBuilder} New {@link OfferCallBuilder} object
    */
   public offers(): OfferCallBuilder {
-    return new OfferCallBuilder(URI(this.serverURL as any));
+    return new OfferCallBuilder(URI(this.serverURL as any), this.httpClient);
   }
 
   /**
@@ -615,6 +624,7 @@ export class HorizonServer {
   public orderbook(selling: Asset, buying: Asset): OrderbookCallBuilder {
     return new OrderbookCallBuilder(
       URI(this.serverURL as any),
+      this.httpClient,
       selling,
       buying,
     );
@@ -625,14 +635,14 @@ export class HorizonServer {
    * @returns {TradesCallBuilder} New {@link TradesCallBuilder} object configured by a current Horizon server configuration.
    */
   public trades(): TradesCallBuilder {
-    return new TradesCallBuilder(URI(this.serverURL as any));
+    return new TradesCallBuilder(URI(this.serverURL as any), this.httpClient);
   }
 
   /**
    * @returns {OperationCallBuilder} New {@link OperationCallBuilder} object configured by a current Horizon server configuration.
    */
   public operations(): OperationCallBuilder {
-    return new OperationCallBuilder(URI(this.serverURL as any));
+    return new OperationCallBuilder(URI(this.serverURL as any), this.httpClient);
   }
 
   /**
@@ -640,7 +650,7 @@ export class HorizonServer {
    *     object configured to the current Horizon server settings.
    */
   public liquidityPools(): LiquidityPoolCallBuilder {
-    return new LiquidityPoolCallBuilder(URI(this.serverURL));
+    return new LiquidityPoolCallBuilder(URI(this.serverURL), this.httpClient);
   }
 
   /**
@@ -676,6 +686,7 @@ export class HorizonServer {
   ): PathCallBuilder {
     return new StrictReceivePathCallBuilder(
       URI(this.serverURL as any),
+      this.httpClient,
       source,
       destinationAsset,
       destinationAmount,
@@ -704,6 +715,7 @@ export class HorizonServer {
   ): PathCallBuilder {
     return new StrictSendPathCallBuilder(
       URI(this.serverURL as any),
+      this.httpClient,
       sourceAsset,
       sourceAmount,
       destination,
@@ -715,7 +727,7 @@ export class HorizonServer {
    * Horizon server configuration.
    */
   public payments(): PaymentCallBuilder {
-    return new PaymentCallBuilder(URI(this.serverURL as any) as any);
+    return new PaymentCallBuilder(URI(this.serverURL as any) as any, this.httpClient);
   }
 
   /**
@@ -723,7 +735,7 @@ export class HorizonServer {
    * Horizon server configuration
    */
   public effects(): EffectCallBuilder {
-    return new EffectCallBuilder(URI(this.serverURL as any) as any);
+    return new EffectCallBuilder(URI(this.serverURL as any) as any, this.httpClient);
   }
 
   /**
@@ -733,7 +745,7 @@ export class HorizonServer {
    * @private
    */
   public friendbot(address: string): FriendbotBuilder {
-    return new FriendbotBuilder(URI(this.serverURL as any), address);
+    return new FriendbotBuilder(URI(this.serverURL as any), this.httpClient, address);
   }
 
   /**
@@ -742,7 +754,7 @@ export class HorizonServer {
    * @returns {AssetsCallBuilder} New AssetsCallBuilder instance
    */
   public assets(): AssetsCallBuilder {
-    return new AssetsCallBuilder(URI(this.serverURL as any));
+    return new AssetsCallBuilder(URI(this.serverURL as any), this.httpClient);
   }
 
   /**
@@ -783,6 +795,7 @@ export class HorizonServer {
   ): TradeAggregationCallBuilder {
     return new TradeAggregationCallBuilder(
       URI(this.serverURL as any),
+      this.httpClient,
       base,
       counter,
       start_time,

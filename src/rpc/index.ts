@@ -8,7 +8,7 @@ export * from "./api";
 
 // soroban-client classes to expose
 export { RpcServer as Server, Durability } from "./server";
-export { default as AxiosClient } from "./axios";
+export { createHttpClient } from "./axios";
 export { parseRawSimulation, parseRawEvents } from "./parsers";
 export * from "./transaction";
 

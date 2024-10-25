@@ -1,3 +1,4 @@
+import { HttpClient } from "../http-client";
 import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
 
@@ -15,8 +16,8 @@ import { ServerApi } from "./server_api";
 export class EffectCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.EffectRecord>
 > {
-  constructor(serverUrl: URI) {
-    super(serverUrl, "effects");
+  constructor(serverUrl: URI, client: HttpClient) {
+    super(serverUrl, client, "effects");
     this.url.segment("effects");
   }
 

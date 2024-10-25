@@ -1,3 +1,4 @@
+import { HttpClient } from "../http-client";
 import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
 
@@ -17,8 +18,8 @@ import { ServerApi } from "./server_api";
 export class TransactionCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.TransactionRecord>
 > {
-  constructor(serverUrl: URI) {
-    super(serverUrl, "transactions");
+  constructor(serverUrl: URI, client: HttpClient) {
+    super(serverUrl, client, "transactions");
     this.url.segment("transactions");
   }
 
@@ -33,6 +34,7 @@ export class TransactionCallBuilder extends CallBuilder<
   ): CallBuilder<ServerApi.TransactionRecord> {
     const builder = new CallBuilder<ServerApi.TransactionRecord>(
       this.url.clone(),
+      this.httpClient
     );
     builder.filter.push([transactionId]);
     return builder;

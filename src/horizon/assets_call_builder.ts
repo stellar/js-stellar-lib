@@ -1,3 +1,4 @@
+import { HttpClient } from "../http-client";
 import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
 
@@ -14,8 +15,8 @@ import { ServerApi } from "./server_api";
 export class AssetsCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.AssetRecord>
 > {
-  constructor(serverUrl: URI) {
-    super(serverUrl);
+  constructor(serverUrl: URI, client: HttpClient) {
+    super(serverUrl, client);
     this.url.segment("assets");
   }
 

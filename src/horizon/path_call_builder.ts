@@ -1,6 +1,7 @@
 import { Asset } from "@stellar/stellar-base";
 import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
+import { HttpClient } from "../http-client";
 
 /**
  * The Stellar Network allows payments to be made across assets through path payments. A path payment specifies a
@@ -36,12 +37,13 @@ export class PathCallBuilder extends CallBuilder<
 > {
   constructor(
     serverUrl: URI,
+    client: HttpClient,
     source: string,
     destination: string,
     destinationAsset: Asset,
     destinationAmount: string
   ) {
-    super(serverUrl);
+    super(serverUrl, client);
     this.url.segment("paths");
     this.url.setQuery("destination_account", destination);
     this.url.setQuery("source_account", source);

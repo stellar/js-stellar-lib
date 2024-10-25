@@ -4,9 +4,10 @@ import URITemplate from "urijs/src/URITemplate";
 import { BadRequestError, NetworkError, NotFoundError } from "../errors";
 
 import { HorizonApi } from "./horizon_api";
-import { AxiosClient, version } from "./horizon_axios_client";
+import { version } from "./horizon_axios_client";
 import { ServerApi } from "./server_api";
 import type { Server } from "../federation";
+import { HttpClient } from "../http-client";
 
 // Resources which can be included in the Horizon response via the `join`
 // query-param.
@@ -56,12 +57,14 @@ export class CallBuilder<
   protected originalSegments: string[];
 
   protected neighborRoot: string;
+  protected httpClient: HttpClient;
 
-  constructor(serverUrl: URI, neighborRoot: string = "") {
+  constructor(serverUrl: URI, client: HttpClient, neighborRoot: string = "") {
     this.url = serverUrl.clone();
     this.filter = [];
     this.originalSegments = this.url.segment() || [];
     this.neighborRoot = neighborRoot;
+    this.httpClient = client;
   }
 
   /**
@@ -367,7 +370,7 @@ export class CallBuilder<
       url = url.protocol(this.url.protocol());
     }
 
-    return AxiosClient.get(url.toString())
+    return this.httpClient.get(url.toString())
       .then((response) => response.data)
       .catch(this._handleNetworkError);
   }

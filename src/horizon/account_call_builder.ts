@@ -1,6 +1,7 @@
 import { Asset } from "@stellar/stellar-base";
 import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
+import { HttpClient } from "../http-client";
 
 /**
  * Creates a new {@link AccountCallBuilder} pointed to server defined by `serverUrl`.
@@ -17,8 +18,8 @@ import { ServerApi } from "./server_api";
 export class AccountCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.AccountRecord>
 > {
-  constructor(serverUrl: URI) {
-    super(serverUrl);
+  constructor(serverUrl: URI, client: HttpClient) {
+    super(serverUrl, client);
     this.url.segment("accounts");
   }
 
@@ -31,7 +32,7 @@ export class AccountCallBuilder extends CallBuilder<
    * @returns {CallBuilder} a new CallBuilder instance for the /accounts/:id endpoint
    */
   public accountId(id: string): CallBuilder<ServerApi.AccountRecord> {
-    const builder = new CallBuilder<ServerApi.AccountRecord>(this.url.clone());
+    const builder = new CallBuilder<ServerApi.AccountRecord>(this.url.clone(), this.httpClient);
     builder.filter.push([id]);
     return builder;
   }

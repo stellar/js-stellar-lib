@@ -1,4 +1,4 @@
-import http from "./axios";
+import { HttpClient } from "../http-client";
 
 export type Id = string | number;
 
@@ -46,11 +46,12 @@ function hasOwnProperty<X extends {}, Y extends PropertyKey>(
  * @private
  */
 export async function postObject<T>(
+  client: HttpClient,
   url: string,
   method: string,
   param: any = null,
 ): Promise<T> {
-  const response = await http.post<Response<T>>(url, {
+  const response = await client.post<Response<T>>(url, {
     jsonrpc: "2.0",
     // TODO: Generate a unique request id
     id: 1,

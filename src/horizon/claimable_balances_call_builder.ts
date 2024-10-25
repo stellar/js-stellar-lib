@@ -1,6 +1,7 @@
 import { Asset } from "@stellar/stellar-base";
 import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
+import { HttpClient } from "../http-client";
 
 /**
  * Creates a new {@link ClaimableBalanceCallBuilder} pointed to server defined by serverUrl.
@@ -17,8 +18,8 @@ import { ServerApi } from "./server_api";
 export class ClaimableBalanceCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.ClaimableBalanceRecord>
 > {
-  constructor(serverUrl: URI) {
-    super(serverUrl);
+  constructor(serverUrl: URI, client: HttpClient) {
+    super(serverUrl, client);
     this.url.segment("claimable_balances");
   }
 
@@ -34,6 +35,7 @@ export class ClaimableBalanceCallBuilder extends CallBuilder<
   ): CallBuilder<ServerApi.ClaimableBalanceRecord> {
     const builder = new CallBuilder<ServerApi.ClaimableBalanceRecord>(
       this.url.clone(),
+      this.httpClient
     );
     builder.filter.push([claimableBalanceId]);
     return builder;

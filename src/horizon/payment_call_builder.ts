@@ -1,3 +1,4 @@
+import { HttpClient } from "../http-client";
 import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
 
@@ -24,8 +25,8 @@ export class PaymentCallBuilder extends CallBuilder<
     | ServerApi.InvokeHostFunctionOperationRecord
   >
 > {
-  constructor(serverUrl: URI) {
-    super(serverUrl, "payments");
+  constructor(serverUrl: URI, client: HttpClient) {
+    super(serverUrl, client, "payments");
     this.url.segment("payments");
   }
 

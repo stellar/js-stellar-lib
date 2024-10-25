@@ -9,8 +9,8 @@ export * from "./account_response";
 
 export { HorizonServer as Server } from "./server";
 export {
-  default as AxiosClient,
   SERVER_TIME_MAP,
+  createHttpClient,
   getCurrentServerTime
 } from "./horizon_axios_client";
 
