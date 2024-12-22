@@ -2,6 +2,8 @@ module.exports = {
   env: {
     mocha: true,
   },
+  parser: "@typescript-eslint/parser",
+  plugins: ["@babel", "prettier", "prefer-import"],
   globals: {
     StellarSdk: true,
     axios: true,

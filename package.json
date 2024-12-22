@@ -96,6 +96,7 @@
     "build:docs": "cross-env NODE_ENV=docs yarn _babel",
     "clean": "rm -rf lib/ dist/ coverage/ .nyc_output/ jsdoc/ test/e2e/.soroban",
     "docs": "yarn build:docs && jsdoc -c ./config/.jsdoc.json",
+    "lint": "eslint -c ./config/.eslintrc.js 'src/**/*.{ts,tsx}' && dtslint --localTs node_modules/typescript/lib types/",
     "test": "yarn build:test && yarn test:node && yarn test:integration && yarn test:browser",
     "test:e2e": "./test/e2e/initialize.sh && yarn _nyc mocha --recursive 'test/e2e/src/test-*.js'",
     "test:node": "yarn _nyc mocha --recursive 'test/unit/**/*.js'",
