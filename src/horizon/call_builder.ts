@@ -16,7 +16,7 @@ const JOINABLE = ["transaction"];
 declare const __USE_EVENTSOURCE__: boolean;
 
 export interface EventSourceOptions<T> {
-  onmessage?: (value: T) => void;
+  onmessage?: (value: T extends ServerApi.CollectionPage<infer U> ? U : T) => void;
   onerror?: (event: MessageEvent) => void;
   reconnectTimeout?: number;
 }
