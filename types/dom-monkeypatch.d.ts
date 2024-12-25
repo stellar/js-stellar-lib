@@ -31,9 +31,9 @@ interface EventSource extends EventTarget {
    * event stream is set to "include", and false otherwise.
    */
   readonly withCredentials: boolean;
-  readonly CLOSED: number;
-  readonly CONNECTING: number;
-  readonly OPEN: number;
+  readonly CLOSED: 2;
+  readonly CONNECTING: 0;
+  readonly OPEN: 1;
   close(): void;
   addEventListener<K extends keyof EventSourceEventMap>(
     type: K,

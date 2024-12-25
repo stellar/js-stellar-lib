@@ -430,7 +430,8 @@ import {
 ## [v11.2.2](https://github.com/stellar/js-stellar-sdk/compare/v11.2.1...v11.2.2)
 
 ### Fixed
-* Event streaming tests now pass on Node 20, which seems to have tighter conformance to the spec ([#917](https://github.com/stellar/js-stellar-sdk/pull/917)).
+* Corrects the types in event source monkeypatching ([#916](https://github.com/stellar/js-stellar-sdk/pull/916)).
+* The test suite now conforms to Node 20 (SSE seems to have tighter conformance to the spec ([#917](https://github.com/stellar/js-stellar-sdk/pull/917)).
 * `@stellar/stellar-base` has been upgraded to its latest major version ([#918](https://github.com/stellar/js-stellar-sdk/pull/918), see [v11.0.0](https://github.com/stellar/js-stellar-base/releases/tag/v11.0.0) for release notes).
 
 
