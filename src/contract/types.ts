@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Memo, MemoType, Operation, Transaction, xdr } from "@stellar/stellar-base";
 import type { Client } from "./client";
+import { Keypair } from "@stellar/stellar-base";
 
 export type XDR_BASE64 = string;
 /**
@@ -131,7 +132,7 @@ export type ClientOptions = {
    *
    * Matches signature of `signTransaction` from Freighter.
    */
-  signTransaction?: SignTransaction;
+  signTransaction?: SignTransaction | Keypair;
   /**
    * A function to sign a specific auth entry for a transaction, using the
    * private key corresponding to the provided `publicKey`. This is only needed

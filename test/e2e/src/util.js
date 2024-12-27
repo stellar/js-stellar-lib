@@ -89,7 +89,9 @@ module.exports.generateFundedKeypair = generateFundedKeypair;
  */
 async function clientFor(name, { keypair, contractId } = {}) {
   const internalKeypair = keypair ?? (await generateFundedKeypair());
-  const signer = contract.basicNodeSigner(internalKeypair, networkPassphrase);
+  
+  // Pass the Keypair directly instead of using basicNodeSigner
+  const signer = internalKeypair; // Use Keypair directly
 
   if (contractId) {
     return {
@@ -99,7 +101,7 @@ async function clientFor(name, { keypair, contractId } = {}) {
         rpcUrl,
         allowHttp: true,
         publicKey: internalKeypair.publicKey(),
-        ...signer,
+        signTransaction: signer, // Pass Keypair here
       }),
       contractId,
       keypair,
@@ -118,7 +120,7 @@ async function clientFor(name, { keypair, contractId } = {}) {
       allowHttp: true,
       wasmHash: wasmHash,
       publicKey: internalKeypair.publicKey(),
-      ...signer,
+      signTransaction: signer, // Pass Keypair here
     },
   );
   const { result: client } = await deploy.signAndSend();

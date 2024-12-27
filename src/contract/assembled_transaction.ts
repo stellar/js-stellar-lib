@@ -5,6 +5,7 @@ import {
   Address,
   BASE_FEE,
   Contract,
+  Keypair,
   Operation,
   SorobanDataBuilder,
   TransactionBuilder,
@@ -15,6 +16,7 @@ import type {
   AssembledTransactionOptions,
   ClientOptions,
   MethodOptions,
+  SignTransaction,
   Tx,
   WalletError,
   XDR_BASE64,
@@ -32,6 +34,7 @@ import {
 import { DEFAULT_TIMEOUT } from "./types";
 import { SentTransaction } from "./sent_transaction";
 import { Spec } from "./spec";
+import { basicNodeSigner } from './basic_node_signer';
 
 /** @module contract */
 
@@ -682,7 +685,17 @@ export class AssembledTransaction<T> {
       );
     }
 
-    if (!signTransaction) {
+    // Check if signTransaction is a Keypair
+    let signFunction: SignTransaction | undefined;
+
+    if (signTransaction instanceof Keypair) {
+      const keypair = signTransaction;
+      signFunction = basicNodeSigner(keypair, this.options.networkPassphrase).signTransaction;
+    } else if (typeof signTransaction === 'function') {
+      signFunction = signTransaction;
+    }
+
+    if (!signFunction) {
       throw new AssembledTransaction.Errors.NoSigner(
         "You must provide a signTransaction function, either when calling " +
         "`signAndSend` or when initializing your Client"
@@ -708,7 +721,10 @@ export class AssembledTransaction<T> {
       .setTimeout(timeoutInSeconds)
       .build();
 
-    const signOpts: Parameters<NonNullable<ClientOptions['signTransaction']>>[1] = {
+    // const signOpts: Parameters<NonNullable<ClientOptions['signTransaction']>>[1] = {
+    //   networkPassphrase: this.options.networkPassphrase,
+    // };
+    const signOpts: Parameters<SignTransaction>[1] = {
       networkPassphrase: this.options.networkPassphrase,
     };
   
@@ -716,7 +732,7 @@ export class AssembledTransaction<T> {
     if (this.options.submit !== undefined) signOpts.submit = this.options.submit;
     if (this.options.submitUrl) signOpts.submitUrl = this.options.submitUrl;
 
-    const { signedTxXdr: signature, error } = await signTransaction(
+    const { signedTxXdr: signature, error } = await signFunction(
       this.built.toXDR(),
       signOpts,
     );

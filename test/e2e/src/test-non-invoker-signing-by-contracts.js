@@ -31,6 +31,24 @@ describe("cross-contract auth", function () {
         async () => await this.context.tx.sign({ force: true }),
       ).to.not.throw();
     });
+
+    it("signs transaction using Keypair", async function () {
+      const result = await this.context.tx.sign({
+        signTransaction: this.context.keypair,
+        force: true,
+      });
+      expect(result).to.be.undefined;
+    });
+
+
+    it("signs transaction using basicNodeSigner", async function () {
+      const signer = contract.basicNodeSigner(this.context.keypair, "Standalone Network ; February 2017");
+      const result = await this.context.tx.sign({
+        signTransaction: signer.signTransaction,
+        force: true,
+      });
+      expect(result).to.be.undefined;
+    });
   });
 
   describe("signAuthEntries with custom authorizeEntry", function () {
