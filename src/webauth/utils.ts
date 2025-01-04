@@ -41,7 +41,7 @@ import { ServerApi } from "../horizon/server_api";
  *    memo must be of type `id`. If the `clientaccountID` is a muxed account,
  *    memos cannot be used.
  * @param {string} [clientDomain] The fully qualified domain of the client
- *    requesting the challenge. Only necessary when the the 'client_domain'
+ *    requesting the challenge. Only necessary when the 'client_domain'
  *    parameter is passed.
  * @param {string} [clientSigningKey] The public key assigned to the SIGNING_KEY
  *    attribute specified on the stellar.toml hosted on the client domain. Only

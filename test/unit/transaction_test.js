@@ -86,7 +86,7 @@ describe("assembleTransaction", () => {
       // since it was greater than tx.fee
       expect(result.toEnvelope().v1().tx().fee()).to.equal(215);
 
-      // validate it udpated sorobantransactiondata block in the tx ext
+      // validate it updated sorobantransactiondata block in the tx ext
       expect(result.toEnvelope().v1().tx().ext().sorobanData()).to.deep.equal(
         sorobanTransactionData,
       );

@@ -59,7 +59,7 @@ export class Client {
   static async deploy<T = Client>(
     /** Constructor/Initialization Args for the contract's `__constructor` method */
     args: Record<string, any> | null,
-    /** Options for initalizing a Client as well as for calling a method, with extras specific to deploying. */
+    /** Options for initializing a Client as well as for calling a method, with extras specific to deploying. */
     options: MethodOptions &
       Omit<ClientOptions, "contractId"> & {
         /** The hash of the Wasm blob, which must already be installed on-chain. */
