@@ -600,12 +600,17 @@ export class Spec {
    * Converts a native JS value to an ScVal based on the given type.
    *
    * @param {any} val the native JS value
-   * @param {xdr.ScSpecTypeDef} [ty] the expected type
+   * @param {xdr.ScSpecTypeDef | string} [ty] the expected type. If you pass a string, it is assumed to be the name of a User Defined Type (udt).
    * @returns {xdr.ScVal} the converted ScVal
    *
    * @throws {Error} if value cannot be converted to the given type
    */
-  nativeToScVal(val: any, ty: xdr.ScSpecTypeDef): xdr.ScVal {
+  nativeToScVal(val: any, ty: xdr.ScSpecTypeDef | string): xdr.ScVal {
+    if (typeof ty === "string") {
+      ty = xdr.ScSpecTypeDef.scSpecTypeUdt(
+        new xdr.ScSpecTypeUdt({ name: ty }),
+      );
+    }
     const t: xdr.ScSpecType = ty.switch();
     const value = t.value;
     if (t.value === xdr.ScSpecType.scSpecTypeUdt().value) {
