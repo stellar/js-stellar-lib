@@ -175,14 +175,14 @@ export interface ClaimableBalanceClaimantCreated
   extends Omit<ClaimableBalanceCreated, "type_i"> {
   type_i: EffectType.claimable_balance_claimant_created;
 }
-interface SponsershipFields {
+interface SponsorshipFields {
   sponsor: string;
   new_sponsor: string;
   former_sponsor: string;
 }
 interface AccountSponsorshipEvents<T extends string>
   extends BaseEffectRecord<T>,
-    SponsershipFields {}
+    SponsorshipFields {}
 
 export type AccountSponsorshipCreated = Omit<
   AccountSponsorshipEvents<'account_sponsorship_created'>,
@@ -198,7 +198,7 @@ export type AccountSponsorshipRemoved = Omit<
 > & { type_i: EffectType.account_sponsorship_removed };
 interface TrustlineSponsorshipEvents<T extends string>
   extends BaseEffectRecord<T>,
-    SponsershipFields {
+    SponsorshipFields {
   asset?: string;
   liquidity_pool_id?: string;
 }
@@ -214,7 +214,7 @@ export type TrustlineSponsorshipRemoved = Omit<
   TrustlineSponsorshipEvents<'trustline_sponsorship_removed'>,
   "new_sponsor" | "sponsor"
 > & { type_i: EffectType.trustline_sponsorship_removed };
-interface DataSponsorshipEvents<T extends string> extends BaseEffectRecord<T>, SponsershipFields {
+interface DataSponsorshipEvents<T extends string> extends BaseEffectRecord<T>, SponsorshipFields {
   data_name: string;
 }
 export type DateSponsorshipCreated = Omit<
@@ -230,7 +230,7 @@ export type DateSponsorshipRemoved = Omit<
 > & { type_i: EffectType.data_sponsorship_removed };
 interface ClaimableBalanceSponsorshipEvents<T extends string>
   extends BaseEffectRecord<T>,
-    SponsershipFields {
+    SponsorshipFields {
   balance_type_i: string;
 }
 
@@ -246,7 +246,7 @@ export type ClaimableBalanceSponsorshipRemoved = Omit<
   ClaimableBalanceSponsorshipEvents<'claimable_balance_sponsorship_removed'>,
   "new_sponsor" | "sponsor"
 > & { type_i: EffectType.claimable_balance_sponsorship_removed };
-interface SignerSponsorshipEvents<T extends string> extends BaseEffectRecord<T>, SponsershipFields {
+interface SignerSponsorshipEvents<T extends string> extends BaseEffectRecord<T>, SponsorshipFields {
   signer: string;
 }
 
