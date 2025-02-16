@@ -157,7 +157,7 @@
     "@types/json-schema": "^7.0.15",
     "@types/lodash": "^4.17.13",
     "@types/mocha": "^10.0.9",
-    "@types/node": "^20.14.11",
+    "@types/node": "^22.13.4",
     "@types/randombytes": "^2.0.1",
     "@types/sinon": "^17.0.2",
     "@types/urijs": "^1.19.20",
